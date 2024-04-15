@@ -1,0 +1,49 @@
+Creacion de usuario
+
+ALTER SESSION SET "_Oracle_Script"=TRUE;
+
+CREATE USER REDSOCIAL
+IDENTIFIED BY "RED_SOCIAL_2024"
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP
+QUOTA UNLIMITED ON USERS;
+
+GRANT CREATE SESSION, RESOURCE TO REDSOCIAL;
+
+ALTER USER REDSOCIAL 
+DEFAULT ROLE RESOURCE;
+
+
+
+#Creacion tabla bdd + insert para pruebas
+
+create table post(
+    idPost NUMBER GENERATED ALWAYS AS IDENTITY,
+    userPost VARCHAR2(50),
+    textPost VARCHAR2(250),
+    datePost DATE
+);
+
+create table Reaction(
+    idReaction NUMBER GENERATED ALWAYS AS IDENTITY,
+    totalLike NUMBER (11),
+    totalLove NUMBER (11),
+    totalFunny NUMBER (11),
+    idPost NUMBER (11)
+);
+
+
+create table comment_post (
+    idComment NUMBER GENERATED ALWAYS AS IDENTITY,
+    userComment VARCHAR2(50),
+    textComment VARCHAR(250),
+    dateComment DATE,
+    idPost NUMBER(11)
+ );
+ 
+  
+ insert into post (userPost, textPost, datePost) VALUES ('Juan@Pedro','Hi friends!',SYSDATE);
+ insert into comment_post (userComment, textComment, dateComment, idPost) VALUES ('Pedro@Paramo', 'Very Good!', SYSDATE, 1);
+ insert into reaction (totalLike, totalLove, totalFunny, idPost) VALUES (10,12,17,1);
+  
+ 
