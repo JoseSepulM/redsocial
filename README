@@ -1,4 +1,6 @@
-Creacion de usuario
+-- BDD para microservicio
+
+-- Creacion de usuario
 
 ALTER SESSION SET "_Oracle_Script"=TRUE;
 
