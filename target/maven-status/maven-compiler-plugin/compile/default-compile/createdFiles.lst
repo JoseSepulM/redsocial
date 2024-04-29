@@ -1,0 +1,15 @@
+com\example\redsocial\service\CommentService.class
+com\example\redsocial\controller\PostController.class
+com\example\redsocial\service\PostServiceImp.class
+com\example\redsocial\controller\PostController$ErrorResponse.class
+com\example\redsocial\model\Reaction.class
+com\example\redsocial\service\ReactionServiceImp.class
+com\example\redsocial\service\PostService.class
+com\example\redsocial\model\Post.class
+com\example\redsocial\model\Comment.class
+com\example\redsocial\repository\PostRepository.class
+com\example\redsocial\service\CommentServiceImp.class
+com\example\redsocial\RedsocialApplication.class
+com\example\redsocial\repository\CommentRepository.class
+com\example\redsocial\service\ReactionService.class
+com\example\redsocial\repository\ReactionRepository.class
