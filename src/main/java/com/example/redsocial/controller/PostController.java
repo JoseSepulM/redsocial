@@ -22,9 +22,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
+
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -32,6 +40,9 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/post")
 public class PostController {
+
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
+    
     @Autowired
     private PostService postService;
     @Autowired
@@ -41,43 +52,66 @@ public class PostController {
 
 
     @GetMapping()
-    public List<Post> getAllPost() {
-        return postService.getAllPosts();
+    public CollectionModel<EntityModel<Post>> getAllPost() {
+        List<Post> posts = postService.getAllPosts();
+        log.info("GET /post");
+        log.info("Retornando todos los post");
+
+        List<EntityModel<Post>> postsResources = posts.stream()
+        .map( post -> EntityModel.of(post,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(post.getIdPost())).withSelfRel()
+        ))
+        .collect(Collectors.toList());
+       
+        WebMvcLinkBuilder linkTo = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllPost());
+        CollectionModel<EntityModel<Post>> resources = CollectionModel.of(postsResources, linkTo.withRel("posts"));
+
+        return resources;
     }
 
     @GetMapping("/{idPost}")
-    public ResponseEntity<?> getPostById(@PathVariable Long idPost){
-        Optional <Post> post = postService.getPostById(idPost);
-        if(post.isEmpty()){
+    public ResponseEntity<?> getPostById(@PathVariable Long idPost) {
+        Optional<Post> optionalPost = postService.getPostById(idPost);
+        if (optionalPost.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Post not found with id: " + idPost));
         }
-
-        return ResponseEntity.ok(post);
+    
+        Post post = optionalPost.get();
+        EntityModel<Post> postResource = EntityModel.of(post,
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(idPost)).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllPost()).withRel("allPosts"));
+    
+        return ResponseEntity.ok(postResource);
     }
 
     @GetMapping("/{idPost}/detail")
-    public Map<String, Object> getPostDetail(@PathVariable Long idPost) {
-
+    public ResponseEntity<EntityModel<Map<String, Object>>> getPostDetail(@PathVariable Long idPost) {
+    
         Map<String, Object> result = new HashMap<>();
-
-        Optional<Post> post = postService.getPostById(idPost);
+    
+        Optional<Post> optionalPost = postService.getPostById(idPost);
         List<Comment> comments = commentService.getCommentsByIdPost(idPost);
         List<Reaction> reactions = reactionService.getReactionsByIdPost(idPost);
-
-
-        if(post.isEmpty())
-        {
+    
+        if (optionalPost.isEmpty()) {
             result.put("response", false);
             result.put("msg", "Post not found");
-            return result;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(EntityModel.of(result,
+                                                        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostDetail(idPost)).withSelfRel()));
         }
-
+    
+        Post post = optionalPost.get();
         result.put("response", true);
         result.put("post", post);
         result.put("comment", comments);
         result.put("reaction", reactions);
-
-        return result;
+    
+        EntityModel<Map<String, Object>> resultResource = EntityModel.of(result,
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostDetail(idPost)).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPostById(idPost)).withRel("post"));
+    
+        return ResponseEntity.ok(resultResource);
     }
     
    
