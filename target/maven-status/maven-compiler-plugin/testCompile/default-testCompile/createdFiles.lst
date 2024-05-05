@@ -1,2 +1,3 @@
 com\example\redsocial\controller\PostControllerTest.class
 com\example\redsocial\RedsocialApplicationTests.class
+com\example\redsocial\service\PostServiceImpTest.class

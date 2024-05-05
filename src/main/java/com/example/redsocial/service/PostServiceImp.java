@@ -14,6 +14,10 @@ public class PostServiceImp implements PostService{
     
     @Autowired
     private PostRepository postRepository;
+
+    public PostServiceImp(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
  
     @Override
     public List<Post> getAllPosts()
